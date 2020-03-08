@@ -6,7 +6,10 @@
 - beautifulsoup4
 - requests
 
+### 2. How does it work
+Its main steps are as follows:
 
+<img src='process.png' >
 
 ### 2. How to use
 
