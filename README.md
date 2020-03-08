@@ -5,6 +5,7 @@
 - selenium
 - beautifulsoup4
 - requests
+- Chrome & webdriver(under the Python Script folder)
 
 ### 2. How does it work
 
