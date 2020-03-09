@@ -12,6 +12,20 @@ import time
 import base64
 import hashlib
 
+import threading
+
+
+class Loading(threading.Thread):
+    def __init__(self, name=None):
+        super().__init__()
+        self.name = name
+
+    def run(self):
+        while True:
+            for i in ["|", "/", "-", "\\"]:
+                print(f"\b{i}", flush=True, end='')
+                time.sleep(0.2)
+
 
 class GoogleSearcher:
     def __init__(self, upload="upload",
@@ -21,6 +35,7 @@ class GoogleSearcher:
         self._download = download  # 下载的文件
         self.sleep_time = sleep_time  # 下载网页源代码所等待的时间
         self.mode = mode  # 指定两种模式，一种是直接在upload文件中存放图片内容，另外一种是在upload中存放文件夹
+
         self.header = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.79 Safari/537.36"}
 
@@ -45,7 +60,6 @@ class GoogleSearcher:
     @download.setter
     def download(self, download):
         self._download = download
-
 
     def upload_img_get_html(self, file):
         """上传图片，并获取对应的html源码"""
@@ -195,13 +209,15 @@ class GoogleSearcher:
         else:
             return False
 
-
     def file_run(self, img_list):
         """文件夹下面是图片"""
         for i, img in enumerate(img_list):
             if os.path.isfile(img):
                 img_name = os.path.splitext(os.path.split(img)[1])[0]  # 所要上传图片的名字
-                print("正在处理文件 {}".format(img_name))
+                print("正在处理文件 {}  ".format(img_name), end=" ")
+                loading = Loading()
+                loading.setDaemon(True)
+                loading.start()
                 if self.is_img(img):
                     # 在对应的目录下创建新的目录来储存对应获取的内容
                     this_download_dir = self._download + "\\" + img_name
@@ -214,7 +230,7 @@ class GoogleSearcher:
                     with open(html_name, 'w', encoding='utf-8', errors='ignore') as file:
                         file.write(html_source)
                     self.analyse(html_source, this_download_dir, this_download_dir + "/" + img_name)  # 解析网页，下载图片，写入网页文本
-                    print("图片{}处理完成\n".format(img_name))
+                    print("\n图片{}处理完成\n".format(img_name))
                 else:
                     print(f"文件 {img_name} 不是图片类型文件")
 
