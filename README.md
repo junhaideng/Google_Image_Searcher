@@ -13,7 +13,7 @@ The mirror website is : [https://images.wjbaike.site/imghp](https://images.wjbai
 
 Its main steps are as follows:
 
-<img src='process.png' >
+<img src='process_2.png' >
 
 ### 3. How to use
 
