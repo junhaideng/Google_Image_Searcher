@@ -186,25 +186,38 @@ class GoogleSearcher:
         else:
             return filename
 
+    @staticmethod
+    def is_img(img_path):
+        """简单的先判断该文件是否是图片类型"""
+        ext = os.path.splitext(img_path)[1]
+        if ext in [".bmp", ".jpg", ".jpeg", ".tif", ".tiff", ".jfif", ".png", ".gif", ".iff", ".ilbm"]:
+            return True
+        else:
+            return False
+
 
     def file_run(self, img_list):
         """文件夹下面是图片"""
         for i, img in enumerate(img_list):
             if os.path.isfile(img):
                 img_name = os.path.splitext(os.path.split(img)[1])[0]  # 所要上传图片的名字
-                print("正在处理图片{}".format(img_name))
-                # 在对应的目录下创建新的目录来储存对应获取的内容
-                this_download_dir = self._download + "\\" + img_name
+                print("正在处理文件 {}".format(img_name))
+                if self.is_img(img):
+                    # 在对应的目录下创建新的目录来储存对应获取的内容
+                    this_download_dir = self._download + "\\" + img_name
 
-                if not os.path.exists(this_download_dir):
-                    os.mkdir(this_download_dir)
+                    if not os.path.exists(this_download_dir):
+                        os.mkdir(this_download_dir)
 
-                html_name = self.process_filename("{}.html".format(this_download_dir + "/" + img_name))
-                html_source = self.upload_img_get_html(img)  # 获取上传图片之后获取的html source
-                with open(html_name, 'w', encoding='utf-8', errors='ignore') as file:
-                    file.write(html_source)
-                self.analyse(html_source, this_download_dir, this_download_dir + "/" + img_name)  # 解析网页，下载图片，写入网页文本
-                print("图片{}处理完成\n".format(img_name))
+                    html_name = self.process_filename("{}.html".format(this_download_dir + "/" + img_name))
+                    html_source = self.upload_img_get_html(img)  # 获取上传图片之后获取的html source
+                    with open(html_name, 'w', encoding='utf-8', errors='ignore') as file:
+                        file.write(html_source)
+                    self.analyse(html_source, this_download_dir, this_download_dir + "/" + img_name)  # 解析网页，下载图片，写入网页文本
+                    print("图片{}处理完成\n".format(img_name))
+                else:
+                    print(f"文件 {img_name} 不是图片类型文件")
+
             else:
                 continue
 
@@ -232,6 +245,6 @@ class GoogleSearcher:
 
 
 if __name__ == "__main__":
-    test = GoogleSearcher(mode='folder')
+    test = GoogleSearcher(mode='file')
 
     test.run()
