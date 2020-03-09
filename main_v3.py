@@ -29,12 +29,11 @@ class Loading(threading.Thread):
 
 class GoogleSearcher:
     def __init__(self, upload="upload",
-                 download="download", sleep_time=6, mode='file'):
+                 download="download", sleep_time=6):
         super().__init__()
         self._upload = upload  # 上传的图片所在目录
         self._download = download  # 下载的文件
         self.sleep_time = sleep_time  # 下载网页源代码所等待的时间
-        self.mode = mode  # 指定两种模式，一种是直接在upload文件中存放图片内容，另外一种是在upload中存放文件夹
 
         self.header = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.79 Safari/537.36"}
@@ -260,6 +259,6 @@ class GoogleSearcher:
 
 
 if __name__ == "__main__":
-    test = GoogleSearcher(mode='file')
+    test = GoogleSearcher()
 
     test.run()
