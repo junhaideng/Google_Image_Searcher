@@ -106,13 +106,6 @@ class GoogleSearcher:
 
         time.sleep(self.sleep_time)  # 网络好一点的话可以调小一点
 
-        # current_url = driver.current_url
-        # return self.get_html(current_url)
-
-        # 可能本地网络不太好，使用下面的方法的时候比较容易出现错误
-        # print(driver.current_url)
-        # print(driver.page_source)
-
         return driver.page_source
 
     @staticmethod
