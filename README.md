@@ -45,3 +45,39 @@ Its main steps are as follows:
 
 - #### `version 4`
   - 自动递归识别文件夹中的内容，无论图片位置如何放置，皆可进行搜索
+ 
+ <hr/>
+
+<table>
+    <tr>
+    <th>version</th>
+    <th>自动识别图片类型文件</th>
+    <th>upload模式(file/folder)</th>
+    <th>递归upload文件夹下载图片</th>
+    </tr>
+    <tr>
+        <td>1</td>
+        <td>✖</td>
+        <td>✖</td>
+        <td>✖</td>
+    </tr>
+      <tr>
+        <td>2</td>
+          <td>✔</td>
+        <td>✔</td>
+        <td>✖</td>
+    </tr>
+      <tr>
+        <td>3</td>
+          <td>✔</td>
+        <td>✖</td>
+        <td>✖</td>
+    </tr>
+      <tr>
+        <td>4</td>
+        <td>✔</td>
+            <td>✖</td>
+        <td>✔</td>
+    </tr>
+</table>
+
