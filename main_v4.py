@@ -4,7 +4,6 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 
-import requests
 from bs4 import BeautifulSoup
 import os
 import re
@@ -116,38 +115,6 @@ class GoogleSearcher:
 
         return driver.page_source
 
-    def get_html(self, url):
-        """获取网页的源代码"""
-        session = requests.session()
-        response = session.get(url, headers=self.header)
-        response.encoding = response.apparent_encoding
-        try:
-            response.raise_for_status()
-        except:
-            return None
-        else:
-            return response.text
-
-    def download_img_via_url(self, url, filename):
-        """以url形式下载图片"""
-        img_name = str(filename) + ".png"
-        img_name = self.process_filename(img_name)
-        if url.startswith("//"):
-            url = "http:" + url
-        response = requests.get(url, headers=self.header)
-        response.encoding = response.apparent_encoding
-        try:
-            response.raise_for_status()
-        except:
-            pass
-        else:
-            if not os.path.exists(img_name):
-                with open(img_name, 'wb', errors='ignore') as file:
-                    file.write(response.content)
-            else:
-                with open(img_name, 'wb', errors='ignore') as file:
-                    file.write(response.content)
-
     @staticmethod
     def download_img_via_base64(string, filename):
         """当图片以base64形式存储在网页中时，可使用该方式下载该图片"""
@@ -207,8 +174,7 @@ class GoogleSearcher:
         """对单独的一个文件进行搜索"""
         if os.path.isfile(img):
             img_name = os.path.splitext(os.path.split(img)[1])[0]  # 所要上传图片的名字
-            print(img)
-            print("{}>>正在处理文件 {}  ".format(os.path.split(img)[0], img_name), end=" ")
+            print("{}>>正在处理图片 {}  ".format(os.path.split(img)[0], img_name), end=" ")
             loading = Loading()
             loading.setDaemon(True)
             loading.start()
