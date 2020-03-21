@@ -9,7 +9,7 @@
 
 ### 2. How does it work
 
-The mirror website is : [https://images.wjbaike.site/imghp](https://images.wjbaike.site/imghp)
+The mirror website is : [https://images.wjbaike.site/imghp](https://images.wjbaike.site/imghp) (**目前该镜像网站会自动重导向到google.com.hk，需要能够访问google才能进行搜索**， 可使用VPN或者 [浏览器插件](https://github.com/Cyberist-Edgar/Google-visit-helper))
 
 Its main steps are as follows:
 
@@ -45,6 +45,9 @@ Its main steps are as follows:
 
 - #### `version 4`
   - 自动递归识别文件夹中的内容，无论图片位置如何放置，皆可进行搜索
+
+- #### `version 4.1`
+  - 在version 4 由于镜像问题进行改进，并添加进度条显示，由于含有插件`Ghelper`, 速度大幅度提升
  
  <hr/>
 
