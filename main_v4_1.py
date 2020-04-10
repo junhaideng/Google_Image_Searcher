@@ -1,3 +1,4 @@
+# coding=utf-8
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
@@ -215,7 +216,7 @@ class GoogleSearcher:
         temp = self._download
         for i in os.walk(upload_path):
             directory = i[0]
-            download = self._download + str(directory.split("upload")[1]).replace("\\", "\\\\")
+            download = self._download + str(directory.split(self._upload, maxsplit=1)[1]).replace("\\", "\\\\")
             self._download = download
             if not os.path.exists(download):
                 os.mkdir(download)
