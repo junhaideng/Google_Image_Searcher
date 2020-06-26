@@ -84,3 +84,6 @@ Its main steps are as follows:
     </tr>
 </table>
 
+
+### 更新：
+2020/6/26： 镜像网站可以正常访问，点击[这里](https://images.hk.53yu.com/imghp)
