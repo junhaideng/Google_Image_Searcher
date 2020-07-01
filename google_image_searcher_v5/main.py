@@ -26,6 +26,7 @@ class GoogleSearcher:
         self.sleep_time = settings["sleep_time"]  # 下载网页源代码所等待的时间
         self.separate = settings["separate"]  # 是否分割开下载的数据文件和当前的图片
         self.extention = settings["extention"]
+        self.mirror = settings["mirror"]  # 是否使用镜像网站
         
         brower = settings["brower"]
         profile = settings["profile_path"]
@@ -48,8 +49,10 @@ class GoogleSearcher:
     def upload_img_get_html(self, file):
         """上传图片，并获取对应的html源码"""
         print(f"{Fore.GREEN}开始上传图片 {os.path.split(file)[1]} {Fore.RESET}")
-        self.driver.get("https://images.wjbaike.site/imghp")
-        # self.driver.get("https://www.google.com/imghp")
+        if self.mirror:
+            self.driver.get("https://images.wjbaike.site/imghp")
+        else:
+            self.driver.get("https://www.google.com/imghp")
 
         # 等待输入框右边的相机图片出现
         condition_1 = expected_conditions.visibility_of_element_located(

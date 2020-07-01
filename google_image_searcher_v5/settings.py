@@ -19,7 +19,8 @@ SETTINGS_JSON = {
     "sleep_time": 6,  # 睡眠时间，部分操作需要休眠一段时间之后才能获取到对应的信息
     "webdriver_path": "",  # webdriver 的路径，如果webdriver在python Scripts下面，可以不声明，否则其他时候必须声明
     "brower": "firefox",  # 或者 chrome
-    "profile_path": ""  # 是一个文件夹
+    "profile_path": "",  # 是一个文件夹
+    "mirror": True  # 是否使用镜像网站
 }
 
 
@@ -156,7 +157,15 @@ def validate(settings: dict):
                 else:
                     if not os.path.isdir(profile):
                         raise NotADirectoryError("profile path is not a directory")
-        
+        else:
+            raise AttributeError("Can not find attribute profile path")
+    
+    def _check_mirror():
+        if "mirror" in keys:
+            if not isinstance(settings["mirror"], bool):
+                raise TypeError("expected bool, not {}".format(type(settings["mirror"]).__name__))
+            else:
+                raise AttributeError("Can not find attribute mirror")
     
 
 
@@ -169,6 +178,7 @@ def validate(settings: dict):
     _check_sleep_time()
     _check_webdriver_path()
     _check_profile_path()
+    _check_mirror()
 
 if __name__ == "__main__":
     # generate_default_settings()
