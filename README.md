@@ -22,6 +22,8 @@ Its main steps are as follows:
 3. 运行main.py，即可在同目录下的`download`(可自定义)文件夹中获取搜索到的图片(暂且仅获取搜索页面的第一页)
 
 
+:star: 建议使用最新版本 :star:
+
 ### 4. New features
 - #### `version 2`
   
@@ -48,6 +50,9 @@ Its main steps are as follows:
 
 - #### `version 4.1`
   - 在version 4 由于镜像问题进行改进，并添加进度条显示，由于含有插件`Ghelper`, 速度大幅度提升
+ 
+- ### `version 5` 
+  - 将配置放置在json文件中，更加灵活
  
  <hr/>
 
@@ -79,6 +84,12 @@ Its main steps are as follows:
       <tr>
         <td>4</td>
         <td>✔</td>
+            <td>✖</td>
+        <td>✔</td>
+    </tr>
+  <tr>
+        <td>5</td>
+        <td>✔(可自定义)</td>
             <td>✖</td>
         <td>✔</td>
     </tr>
