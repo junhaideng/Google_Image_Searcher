@@ -32,11 +32,11 @@ class GoogleSearcher:
         profile = settings["profile_path"]
         # profile 自定义可以参考 https://blog.csdn.net/weixin_44676081/article/details/106322068
         if brower == "firefox":
-            # try:
+            try:
                 self.driver = webdriver.Firefox(firefox_profile=FirefoxProfile(profile), 
                 executable_path=settings["webdriver_path"])
-            # except Exception as e:
-                # print(e)
+            except Exception as e:
+                print(e)
         else:
             try:
                 options = webdriver.ChromeOptions()
