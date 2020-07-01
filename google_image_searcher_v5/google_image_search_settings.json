@@ -1,0 +1,22 @@
+{
+  "upload": "upload",
+  "download": "download",
+  "separate": true,
+  "extention": [
+    ".bmp",
+    ".jpg",
+    ".jpeg",
+    ".tif",
+    ".tiff",
+    ".jfif",
+    ".png",
+    ".gif",
+    ".iff",
+    ".ilbm"
+  ],
+  "sleep_time": 6,
+  "webdriver_path": "C:\\Program Files\\Python38\\Scripts\\geckodriver.exe",
+  "brower": "firefox",
+  "profile_path": "C:/Users/Edgar/AppData/Roaming/Mozilla/Firefox/Profiles/8qrydh7k.default-release-1"
+  
+}
