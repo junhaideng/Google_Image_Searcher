@@ -1,5 +1,16 @@
 ## Google_Image_Searcher
 
+`Version 6` :tada: 
+### 1. requirements
+- beautifulsoup4
+- requests
+- urllib3
+
+`版本6中直接向接口 POST 数据，速度较之前大幅度提升` :tada:
+<hr/>
+
+## 旧版本
+
 ### 1. requirements
 
 - selenium
