@@ -1,0 +1,18 @@
+{
+  "upload": "upload",
+  "download": "download",
+  "separate": true,
+  "extention": [
+    ".bmp",
+    ".jpg",
+    ".jpeg",
+    ".tif",
+    ".tiff",
+    ".jfif",
+    ".png",
+    ".gif",
+    ".iff",
+    ".ilbm"
+  ],
+  "mirror": true
+}
