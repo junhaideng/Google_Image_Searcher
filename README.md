@@ -8,7 +8,7 @@
 
 `版本6中直接向接口 POST 数据，速度较之前大幅度提升` :tada:
 
-另外也使用Go进行了实现([点这里](https://git.io/JUCkn))，速度更快:tada:
+另外也使用Go进行了实现([点这里](https://github.com/junhaideng/go-gis))，速度更快:tada:
 <hr/>
 
 ## 旧版本
