@@ -25,10 +25,10 @@ class GoogleSearcher:
         self.extention = settings["extention"]
         self.mirror = settings["mirror"]  # 是否使用镜像网站
         self.session = requests.Session()
-        self.url = "https://images.hk.53yu.com/searchbyimage/upload"
+        self.url = "https://images.soik.top/searchbyimage/upload"
  
         self.session.headers = {
-            "Host": "images.hk.53yu.com",
+            "Host": "images.soik.top",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36 Edg/85.0.564.44",
         }
         if not self.mirror:
@@ -51,7 +51,7 @@ class GoogleSearcher:
             "filename": "",
             "hl": "hl"
         }
-        res = self.session.post("https://images.hk.53yu.com/searchbyimage/upload",files=files, data=data)
+        res = self.session.post(self.url,files=files, data=data)
         res.encoding = res.apparent_encoding
 
         print(f"{Fore.GREEN}网页源码获取完成{Fore.RESET}")
