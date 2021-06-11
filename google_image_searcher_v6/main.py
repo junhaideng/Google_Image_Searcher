@@ -28,6 +28,7 @@ class GoogleSearcher:
         self.mirror = settings["mirror"]  # 是否使用镜像网站
         self.session = requests.Session()
         self.url = "https://images.soik.top/searchbyimage/upload"
+        self.getOriginPic = settings["getOriginPic"]  # 是否下载原始图片
  
         self.session.headers = {
             "Host": "images.soik.top",
@@ -67,9 +68,10 @@ class GoogleSearcher:
             soup = BeautifulSoup(html, "lxml")
 
             # 查找图片， 页面中需要的图片都是base64 的加密形式
-            # pattern = re.compile("<script.*?>.*?(data:image.*?)['|\"];.*?</script>",
-            #                      re.I | re.M)
-            pic_url="https://www.google.com"+soup.select("title-with-lhs-icon a")[0].attrs['href']
+            pattern = re.compile("<script.*?>.*?(data:image.*?)['|\"];.*?</script>",
+                                 re.I | re.M)
+            
+            pic_url=self.url.split("searchbyimage/upload")[0]+soup.select("title-with-lhs-icon a")[0].attrs['href']
             print("开始下载图片")
         except:
             html_name = "{}.html".format(os.path.join(img_dir, "a"))
@@ -77,75 +79,77 @@ class GoogleSearcher:
                 file.write("<!--下载源码时间: " + time.asctime() + " -->")
                 file.write(html)
             raise
+        
+        if not self.getOriginPic:
+            # 下载图片
+            t = tqdm.tqdm(total=len(re.findall(pattern, html)), dynamic_ncols=True)
+            for i, s in enumerate(re.findall(pattern, html)):
+                t.set_description(f"下载第{i + 1}张")
+                download_img_via_base64(s, img_dir + '/' + str(i))
+                t.update(1)
+            t.close()
+        else:
+            r= self.session.get(pic_url)
+            l =re.findall(
+                r'"(.*?)",[0-9]+,[0-9]+', r.text)
+            pics=list()
+            for i in l:
+                if i[-4:] ==".jpg" or i[-4:] ==".png" :
+                    pics.append(i)
 
-        # 下载图片
-        # t = tqdm.tqdm(total=len(re.findall(pattern, html)), dynamic_ncols=True)
-        # for i, s in enumerate(re.findall(pattern, html)):
-        #     t.set_description(f"下载第{i + 1}张")
-        #     download_img_via_base64(s, img_dir + '/' + str(i))
-        #     t.update(1)
-        # t.close()
-        r= self.session.get(pic_url)
-        l =re.findall(
-            r'"(.*?)",[0-9]+,[0-9]+', r.text)
-        pics=list()
-        for i in l:
-            if i[-4:] ==".jpg" or i[-4:] ==".png" :
-                pics.append(i)
-
-        pic_count=0
-        for n,pic in enumerate(pics):
-            retryCount=3
-            if pic_count>=30:
-                break
-            while(1):
-                try:
-                    imageText='img_none'
-                    print(pic)
-                    image = requests.get(pic)
-                    imageText=image.text
-                    f = open(os.path.join(img_dir,str(n)+pic[-4:]), 'wb')
-                    #将下载到的图片数据写入文件
-                    f.write(image.content)
-                    f.close()
-                    pic_count+=1
+            pic_count=0
+            for n,pic in enumerate(pics):
+                retryCount=3
+                if pic_count>=30:
                     break
-                except Exception as e:
-                    retryCount-=1
-                    print(repr(e))
-                    print(imageText)
-                    if retryCount<=0:
-                        print("跳过")
+                while(1):
+                    try:
+                        imageText='img_none'
+                        print(pic)
+                        image = requests.get(pic)
+                        imageText=image.text
+                        f = open(os.path.join(img_dir,str(n)+pic[-4:]), 'wb')
+                        #将下载到的图片数据写入文件
+                        f.write(image.content)
+                        f.close()
+                        pic_count+=1
                         break
-                    continue
+                    except Exception as e:
+                        retryCount-=1
+                        print(repr(e))
+                        print(imageText)
+                        if retryCount<=0:
+                            print("跳过")
+                            break
+                        continue
 
-        # try:
-        #     # 图片的相关label之类的
-        #     possible_related_search = soup.findAll(
-        #         "a", {"class": "fKDtNb"})[0].get_text()
+        try:
+            # 图片的相关label之类的
+            possible_related_search = soup.findAll(
+                "a", {"class": "fKDtNb"})[0].get_text()
 
-        #     # 对网页的内容进行过滤
-        #     for i in soup.find_all("script"):
-        #         i.decompose()
+            # 对网页的内容进行过滤
+            for i in soup.find_all("script"):
+                i.decompose()
 
-        #     for i in soup.find_all("h1", {"class": "bNg8Rb"}):
-        #         i.decompose()
+            for i in soup.find_all("h1", {"class": "bNg8Rb"}):
+                i.decompose()
 
-        #     for i in soup.find_all("h2", {"class": "bNg8Rb"}):
-        #         i.decompose()
+            for i in soup.find_all("h2", {"class": "bNg8Rb"}):
+                i.decompose()
 
-        #     for i in soup.find_all("style"):
-        #         i.decompose()
+            for i in soup.find_all("style"):
+                i.decompose()
 
-        #     text = soup.findAll("div", {"id": "search"})[
-        #         0].get_text(separator="\n")
-        #     text = re.sub("Reported.*?Done", "", text, flags=re.M | re.I | re.S)
-        #     data_text_name = str(data_text_name) + ".txt"
+            text = soup.findAll("div", {"id": "search"})[
+                0].get_text(separator="\n")
+            text = re.sub("Reported.*?Done", "", text, flags=re.M | re.I | re.S)
+            data_text_name = str(data_text_name) + ".txt"
 
-        #     with open(data_text_name, "w", errors='ignore', encoding='utf-8') as file:
-        #         file.write(possible_related_search + "\n" + text)
-        # except:
-        #     pass
+            with open(data_text_name, "w", errors='ignore', encoding='utf-8') as file:
+                file.write(possible_related_search + "\n" + text)
+        except:
+            pass
 
     def simple_file_run(self, img, download_path):
         """对单独的一个文件进行搜索"""
