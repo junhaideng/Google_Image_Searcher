@@ -212,7 +212,11 @@ class GoogleSearcher:
                     all_folder=oswalk[1]
                     all_num=list()
                     for u in all_folder:
-                        all_num.append(u.split('_')[0])
+                        for oswalk in u:
+                            if len(oswalk[2])==0:
+                                print("空文件夹")
+                            else:
+                                all_num.append(u.split('_')[0])
                     break
                 for j in i[-1]:  # 每一个文件
                     if(j.split('.')[0] in all_num):
