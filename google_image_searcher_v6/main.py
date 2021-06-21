@@ -9,6 +9,8 @@ from colorama import Fore
 from utils import download_img_via_base64, is_img, welcome
 from settings import load_settings
 import urllib3
+import traceback
+import json
 
 # 避免警告
 urllib3.disable_warnings()
@@ -26,6 +28,7 @@ class GoogleSearcher:
         self.mirror = settings["mirror"]  # 是否使用镜像网站
         self.session = requests.Session()
         self.url = "https://images.soik.top/searchbyimage/upload"
+        self.getOriginPic = settings["getOriginPic"]  # 是否下载原始图片
  
         self.session.headers = {
             "Host": "images.soik.top",
@@ -61,45 +64,92 @@ class GoogleSearcher:
         """
         解析html, 下载网页中的图片和文本
         """
-        soup = BeautifulSoup(html, "lxml")
+        try:
+            soup = BeautifulSoup(html, "lxml")
 
-        # 查找图片， 页面中需要的图片都是base64 的加密形式
-        pattern = re.compile("<script.*?>.*?(data:image.*?)['|\"];.*?</script>",
-                             re.I | re.M)
-        print("开始下载图片")
+            # 查找图片， 页面中需要的图片都是base64 的加密形式
+            pattern = re.compile("<script.*?>.*?(data:image.*?)['|\"];.*?</script>",
+                                 re.I | re.M)
+            
+            pic_url=self.url.split("searchbyimage/upload")[0]+soup.select("title-with-lhs-icon a")[0].attrs['href']
+            print("开始下载图片")
+        except:
+            html_name = "{}.html".format(os.path.join(img_dir, "a"))
+            with open(html_name, 'w', encoding='utf-8', errors='ignore') as file:
+                file.write("<!--下载源码时间: " + time.asctime() + " -->")
+                file.write(html)
+            raise
+        
+        if not self.getOriginPic:
+            # 下载图片
+            t = tqdm.tqdm(total=len(re.findall(pattern, html)), dynamic_ncols=True)
+            for i, s in enumerate(re.findall(pattern, html)):
+                t.set_description(f"下载第{i + 1}张")
+                download_img_via_base64(s, img_dir + '/' + str(i))
+                t.update(1)
+            t.close()
+        else:
+            r= self.session.get(pic_url)
+            l =re.findall(
+                r'"(.*?)",[0-9]+,[0-9]+', r.text)
+            pics=list()
+            for i in l:
+                if i[-4:] ==".jpg" or i[-4:] ==".png" :
+                    pics.append(i)
 
-        # 下载图片
-        t = tqdm.tqdm(total=len(re.findall(pattern, html)), dynamic_ncols=True)
-        for i, s in enumerate(re.findall(pattern, html)):
-            t.set_description(f"下载第{i + 1}张")
-            download_img_via_base64(s, img_dir + '/' + str(i))
-            t.update(1)
-        t.close()
+            pic_count=0
+            for n,pic in enumerate(pics):
+                retryCount=3
+                if pic_count>=30:
+                    break
+                while(1):
+                    try:
+                        imageText='img_none'
+                        print(pic)
+                        image = requests.get(pic)
+                        imageText=image.text
+                        f = open(os.path.join(img_dir,str(n)+pic[-4:]), 'wb')
+                        #将下载到的图片数据写入文件
+                        f.write(image.content)
+                        f.close()
+                        pic_count+=1
+                        break
+                    except Exception as e:
+                        retryCount-=1
+                        print(repr(e))
+                        print(imageText)
+                        if retryCount<=0:
+                            print("跳过")
+                            break
+                        continue
 
-        # 图片的相关label之类的
-        possible_related_search = soup.findAll(
-            "a", {"class": "fKDtNb"})[0].get_text()
+        try:
+            # 图片的相关label之类的
+            possible_related_search = soup.findAll(
+                "a", {"class": "fKDtNb"})[0].get_text()
 
-        # 对网页的内容进行过滤
-        for i in soup.find_all("script"):
-            i.decompose()
+            # 对网页的内容进行过滤
+            for i in soup.find_all("script"):
+                i.decompose()
 
-        for i in soup.find_all("h1", {"class": "bNg8Rb"}):
-            i.decompose()
+            for i in soup.find_all("h1", {"class": "bNg8Rb"}):
+                i.decompose()
 
-        for i in soup.find_all("h2", {"class": "bNg8Rb"}):
-            i.decompose()
+            for i in soup.find_all("h2", {"class": "bNg8Rb"}):
+                i.decompose()
 
-        for i in soup.find_all("style"):
-            i.decompose()
+            for i in soup.find_all("style"):
+                i.decompose()
 
-        text = soup.findAll("div", {"id": "search"})[
-            0].get_text(separator="\n")
-        text = re.sub("Reported.*?Done", "", text, flags=re.M | re.I | re.S)
-        data_text_name = str(data_text_name) + ".txt"
+            text = soup.findAll("div", {"id": "search"})[
+                0].get_text(separator="\n")
+            text = re.sub("Reported.*?Done", "", text, flags=re.M | re.I | re.S)
+            data_text_name = str(data_text_name) + ".txt"
 
-        with open(data_text_name, "w", errors='ignore', encoding='utf-8') as file:
-            file.write(possible_related_search + "\n" + text)
+            with open(data_text_name, "w", errors='ignore', encoding='utf-8') as file:
+                file.write(possible_related_search + "\n" + text)
+        except:
+            pass
 
     def simple_file_run(self, img, download_path):
         """对单独的一个文件进行搜索"""
@@ -115,20 +165,27 @@ class GoogleSearcher:
                 if not os.path.exists(this_download_dir):
                     os.mkdir(this_download_dir)
 
-                html_name = "{}.html".format(
-                    os.path.join(this_download_dir, img_name))
+                
+                
+                while_count=3
+                while(1):
+                    try:
+                        html_source = self.upload_img_get_html(
+                            img)  # 获取上传图片之后获取的html source
+                        
 
-                html_source = self.upload_img_get_html(
-                    img)  # 获取上传图片之后获取的html source
+                        self.analyse(html_source, this_download_dir,
+                                    this_download_dir + "/" + img_name)  # 解析网页，下载图片，写入网页文本
 
-                with open(html_name, 'a', encoding='utf-8', errors='ignore') as file:
-                    file.write("<!--下载源码时间: " + time.asctime() + " -->")
-                    file.write(html_source)
-
-                self.analyse(html_source, this_download_dir,
-                             this_download_dir + "/" + img_name)  # 解析网页，下载图片，写入网页文本
-
-                print("{}图片{}处理完成\n{}".format(Fore.GREEN, img_name, Fore.RESET))
+                        print("{}图片{}处理完成\n{}".format(Fore.GREEN, img_name, Fore.RESET))
+                        break
+                    except:
+                        while_count-=1
+                        traceback.print_exc()
+                        time.sleep(1)
+                        if while_count<=0:
+                            break
+                        continue
             else:
                 print(f"{Fore.RED}文件 {img_name} 不是图片类型文件{Fore.RESET}")
 
@@ -151,9 +208,23 @@ class GoogleSearcher:
                 os.mkdir(download)
 
             if i[-1]:  # 同一目录下的文件列表
+                for oswalk in os.walk(download):
+                    all_folder=oswalk[1]
+                    all_num=list()
+                    for u in all_folder:
+                        for oswalk in u:
+                            if len(oswalk[2])==0:
+                                print("空文件夹")
+                            else:
+                                all_num.append(u.split('_')[0])
+                    break
                 for j in i[-1]:  # 每一个文件
+                    if(j.split('.')[0] in all_num):
+                        print(j,"pass")
+                        continue
                     img_path = os.path.join(current_upload_directory, j)
                     self.simple_file_run(img_path, download)
+                    #time.sleep(10)
 
 
 
