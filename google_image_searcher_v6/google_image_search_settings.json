@@ -14,5 +14,6 @@
     ".iff",
     ".ilbm"
   ],
-  "mirror": true
+  "mirror": false,
+  "getOriginPic":true
 }

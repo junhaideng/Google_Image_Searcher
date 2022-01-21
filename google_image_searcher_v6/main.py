@@ -167,7 +167,7 @@ class GoogleSearcher:
 
                 
                 
-                while_count=3
+                while_count=3       #图片下载尝试次数
                 while(1):
                     try:
                         html_source = self.upload_img_get_html(
@@ -212,9 +212,9 @@ class GoogleSearcher:
                     all_folder=oswalk[1]
                     all_num=list()
                     for u in all_folder:
-                        for oswalk in u:
+                        for oswalk in os.walk(os.path.join(download, u)):
                             if len(oswalk[2])==0:
-                                print("空文件夹")
+                                print("空文件夹",oswalk[0])
                             else:
                                 all_num.append(u.split('_')[0])
                     break
