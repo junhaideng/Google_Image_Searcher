@@ -14,7 +14,6 @@ SETTINGS_JSON = {
     "separate": True,  # 下载的文件和图片是否分离
     # 需要处理的图片后缀名
     "extention": [".bmp", ".jpg", ".jpeg", ".tif", ".tiff", ".jfif", ".png", ".gif", ".iff", ".ilbm"],
-    "mirror": True  # 是否使用镜像网站
 }
 
 
@@ -95,12 +94,6 @@ def validate(settings: dict):
             raise AttributeError("Can not find attribute extention")
 
     
-    def _check_mirror():
-        if "mirror" in keys:
-            if not isinstance(settings["mirror"], bool):
-                raise TypeError("expected bool, not {}".format(type(settings["mirror"]).__name__))
-            else:
-                raise AttributeError("Can not find attribute mirror")
     
 
 

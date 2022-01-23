@@ -25,18 +25,16 @@ class GoogleSearcher:
         self._download = settings['download']  # 下载的文件
         self.separate = settings["separate"]  # 是否分割开下载的数据文件和当前的图片
         self.extention = settings["extention"]
-        self.mirror = settings["mirror"]  # 是否使用镜像网站
         self.session = requests.Session()
-        self.url = "https://images.soik.top/searchbyimage/upload"
+        self.url = settings["url"]
         self.getOriginPic = settings["getOriginPic"]  # 是否下载原始图片
  
         self.session.headers = {
             "Host": "images.soik.top",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36 Edg/85.0.564.44",
         }
-        if not self.mirror:
-            self.session.headers["Host"] = "www.google.com"
-            self.url = "https://www.google.com/searchbyimage/upload"
+        
+        self.session.headers["Host"] = "www.google.com"
 
         self.session.verify = False
 
