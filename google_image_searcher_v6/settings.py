@@ -28,7 +28,7 @@ def generate_default_settings(file="settings.json"):
     if os.path.exists(file):
         print("The settings file has existed, if you want to generate again, first delete the settings file")
     else:
-        json.dump(SETTINGS_JSON, open(file, mode='w'), indent=2)
+        json.dump(SETTINGS_JSON, open(file, mode='w', encoding='utf8'), indent=2)
 
 
 def load_settings(file="settings.json"):
@@ -37,7 +37,7 @@ def load_settings(file="settings.json"):
     """
     try:
         if os.path.exists(file):
-            settings = json.load(open(file, mode='r'))
+            settings = json.load(open(file, mode='r', encoding='utf8'))
             validate(settings)
             return settings
         else:

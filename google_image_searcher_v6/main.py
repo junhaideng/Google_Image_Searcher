@@ -2,6 +2,7 @@
 import os
 import re
 import time
+from tkinter.messagebox import NO
 import traceback
 from urllib.parse import urlparse
 
@@ -65,6 +66,7 @@ class GoogleSearcher:
         """
         解析html, 下载网页中的图片和文本
         """
+                  
         try:
             soup = BeautifulSoup(html, "lxml")
 
@@ -72,14 +74,42 @@ class GoogleSearcher:
             pattern = re.compile("<script.*?>.*?(data:image.*?)['|\"];.*?</script>",
                                  re.I | re.M)
 
-            print("开始下载图片")
         except:
             html_name = "{}.html".format(os.path.join(img_dir, "a"))
             with open(html_name, 'w', encoding='utf-8', errors='ignore') as file:
                 file.write("<!--下载源码时间: " + time.asctime() + " -->")
                 file.write(html)
             raise
+          
+        try:
+            # 图片的相关label之类的
+            possible_related_search = soup.findAll(
+                "a", {"class": "fKDtNb"})[0].get_text()
 
+            # 对网页的内容进行过滤
+            for i in soup.find_all("script"):
+                i.decompose()
+
+            for i in soup.find_all("h1", {"class": "bNg8Rb"}):
+                i.decompose()
+
+            for i in soup.find_all("h2", {"class": "bNg8Rb"}):
+                i.decompose()
+
+            for i in soup.find_all("style"):
+                i.decompose()
+
+            text = soup.findAll("div", {"id": "search"})[
+                0].get_text(separator="\n")
+            text = re.sub("Reported.*?Done", "", text, flags=re.M | re.I | re.S)
+            data_text_name = str(data_text_name) + ".txt"
+
+            with open(data_text_name, "w", errors='ignore', encoding='utf-8') as file:
+                file.write(possible_related_search + "\n" + text)
+        except:
+            pass
+          
+        print("开始下载图片")
         if not self.getOriginPic:
             # 下载图片
             t = tqdm.tqdm(total=len(re.findall(pattern, html)), dynamic_ncols=True)
@@ -89,7 +119,12 @@ class GoogleSearcher:
                 t.update(1)
             t.close()
         else:
-            pic_url = self.url.split("searchbyimage/upload")[0] + soup.select("title-with-lhs-icon a")[0].attrs['href']
+            # `Visually similar images` 链接
+            title_link = soup.find("title-with-lhs-icon a")
+            # 可能没有相似的图片，直接返回
+            if title_link is None:
+              return 
+            pic_url = self.url.split("searchbyimage/upload")[0] + title_link.attrs['href']
             r = self.session.get(pic_url)
             l = re.findall(
                 r'"(.*?)",[0-9]+,[0-9]+', r.text)
@@ -124,33 +159,6 @@ class GoogleSearcher:
                             break
                         continue
 
-        try:
-            # 图片的相关label之类的
-            possible_related_search = soup.findAll(
-                "a", {"class": "fKDtNb"})[0].get_text()
-
-            # 对网页的内容进行过滤
-            for i in soup.find_all("script"):
-                i.decompose()
-
-            for i in soup.find_all("h1", {"class": "bNg8Rb"}):
-                i.decompose()
-
-            for i in soup.find_all("h2", {"class": "bNg8Rb"}):
-                i.decompose()
-
-            for i in soup.find_all("style"):
-                i.decompose()
-
-            text = soup.findAll("div", {"id": "search"})[
-                0].get_text(separator="\n")
-            text = re.sub("Reported.*?Done", "", text, flags=re.M | re.I | re.S)
-            data_text_name = str(data_text_name) + ".txt"
-
-            with open(data_text_name, "w", errors='ignore', encoding='utf-8') as file:
-                file.write(possible_related_search + "\n" + text)
-        except:
-            pass
 
     def single_file_run(self, img, download_path):
         """对单独的一个文件进行搜索"""
