@@ -25,5 +25,6 @@ jobs:
       - name: 测试 Google 
         run: | 
           cd google_image_searcher_v6
-          rm settings.json 
+          rm settings.json
+          rm -rf download
           python main.py
