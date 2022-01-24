@@ -5,8 +5,8 @@ load_settings  --> 加载设置文件
 validate  --> 对配置文件中的值进行检验
 """
 
-import os
 import json
+import os
 
 SETTINGS_JSON = {
     "upload": "upload",  # 上传的图片库文件夹
@@ -14,29 +14,29 @@ SETTINGS_JSON = {
     "separate": True,  # 下载的文件和图片是否分离
     # 需要处理的图片后缀名
     "extention": [".bmp", ".jpg", ".jpeg", ".tif", ".tiff", ".jfif", ".png", ".gif", ".iff", ".ilbm"],
-    "mirror": True  # 是否使用镜像网站
+    "url": "https://www.google.com/searchbyimage/upload",  # 默认是 google 原像
+    "getOriginPic": False
 }
 
 
-def generate_default_settings():
+def generate_default_settings(file="settings.json"):
     """
     generate default settings
     and you can modify it in the json file
     """
-    if os.path.exists("google_image_search_settings.json"):
+    if os.path.exists(file):
         print("The settings file has existed, if you want to generate again, first delete the settings file")
     else:
-        json.dump(SETTINGS_JSON, open(
-            "google_image_search_settings.json", mode='w'), indent=2)
+        json.dump(SETTINGS_JSON, open(file, mode='w'), indent=2)
 
 
-def load_settings():
+def load_settings(file="settings.json"):
     """
     load the settings 
     """
     try:
-        if os.path.exists("google_image_search_settings.json"):
-            settings = json.load(open("google_image_search_settings.json", mode='r'))
+        if os.path.exists(file):
+            settings = json.load(open(file, mode='r'))
             validate(settings)
             return settings
         else:
@@ -45,8 +45,7 @@ def load_settings():
     except FileNotFoundError:
         generate_default_settings()
         print("The settings has been generated successfully")
-        print("Go and set your settings!")
-        exit(0)
+        return SETTINGS_JSON
     # except Exception as e:
     #     print(e)
     #     print("Can not load settings")
@@ -60,7 +59,7 @@ def validate(settings: dict):
     keys = settings.keys()
 
     def _check_upload():
-        if not "upload" in keys:
+        if "upload" not in keys:
             raise AttributeError("upload must exists")
         else:
             if not isinstance(settings["upload"], str):
@@ -75,7 +74,7 @@ def validate(settings: dict):
                 raise TypeError("expected bool, not {}".format(type(settings["separate"]).__name__))
         else:
             raise AttributeError("Can not find attribute separate")
-    
+
     def _check_download():
         if settings['separate']:
             return
@@ -86,7 +85,7 @@ def validate(settings: dict):
                 else:
                     if not os.path.exists(settings['download']):
                         os.mkdir(settings['download'])
-   
+
     def _check_extention():
         if 'extention' in keys:
             if not isinstance(settings["extention"], list):
@@ -94,26 +93,18 @@ def validate(settings: dict):
         else:
             raise AttributeError("Can not find attribute extention")
 
-    
-    def _check_mirror():
-        if "mirror" in keys:
-            if not isinstance(settings["mirror"], bool):
-                raise TypeError("expected bool, not {}".format(type(settings["mirror"]).__name__))
-            else:
-                raise AttributeError("Can not find attribute mirror")
-    
-
-
     _check_upload()
     _check_separate()  # first to check separate, then check download
     _check_download()
     _check_extention()
 
+
 if __name__ == "__main__":
     # generate_default_settings()
 
     import time
-    start_time  = time.time()
+
+    start_time = time.time()
     print(load_settings())
     end_time = time.time()
-    print(end_time-start_time)
+    print(end_time - start_time)

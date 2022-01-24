@@ -1,0 +1,26 @@
+name: test 
+
+on: [push, pull_request]
+
+jobs:
+  test: 
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.8"
+      - name: setup
+        run: |
+          cd google_image_searcher_v6
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+          mkdir upload
+          wget -O upload/github.png "https://avatars.githubusercontent.com/u/9919?s=200&v=4"
+      - name: 测试 Google 镜像
+        run: sudo python main.py
+      - name: 测试 Google 
+        run: | 
+          rm settings.json 
+          sudo python main.py

@@ -1,16 +1,18 @@
 # coding=utf-8
-import requests
-from bs4 import BeautifulSoup
 import os
 import re
 import time
-import tqdm
-from colorama import Fore
-from utils import download_img_via_base64, is_img, welcome
-from settings import load_settings
-import urllib3
 import traceback
-import json
+from urllib.parse import urlparse
+
+import requests
+import tqdm
+import urllib3
+from bs4 import BeautifulSoup
+from colorama import Fore
+
+from settings import load_settings
+from utils import download_img_via_base64, is_img, welcome
 
 # 避免警告
 urllib3.disable_warnings()
@@ -25,21 +27,20 @@ class GoogleSearcher:
         self._download = settings['download']  # 下载的文件
         self.separate = settings["separate"]  # 是否分割开下载的数据文件和当前的图片
         self.extention = settings["extention"]
-        self.mirror = settings["mirror"]  # 是否使用镜像网站
         self.session = requests.Session()
-        self.url = "https://images.soik.top/searchbyimage/upload"
+        self.url = settings["url"]
         self.getOriginPic = settings["getOriginPic"]  # 是否下载原始图片
- 
+
+        # 解析 url 获取主机号
+        result = urlparse(self.url)
+
         self.session.headers = {
-            "Host": "images.soik.top",
+            "Host": result.netloc,
+            "Origin": result.netloc,
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36 Edg/85.0.564.44",
         }
-        if not self.mirror:
-            self.session.headers["Host"] = "www.google.com"
-            self.url = "https://www.google.com/searchbyimage/upload"
 
         self.session.verify = False
-
 
     def upload_img_get_html(self, file):
         """上传图片，并获取对应的html源码"""
@@ -54,7 +55,7 @@ class GoogleSearcher:
             "filename": "",
             "hl": "hl"
         }
-        res = self.session.post(self.url,files=files, data=data)
+        res = self.session.post(self.url, files=files, data=data)
         res.encoding = res.apparent_encoding
 
         print(f"{Fore.GREEN}网页源码获取完成{Fore.RESET}")
@@ -70,8 +71,7 @@ class GoogleSearcher:
             # 查找图片， 页面中需要的图片都是base64 的加密形式
             pattern = re.compile("<script.*?>.*?(data:image.*?)['|\"];.*?</script>",
                                  re.I | re.M)
-            
-            pic_url=self.url.split("searchbyimage/upload")[0]+soup.select("title-with-lhs-icon a")[0].attrs['href']
+
             print("开始下载图片")
         except:
             html_name = "{}.html".format(os.path.join(img_dir, "a"))
@@ -79,7 +79,7 @@ class GoogleSearcher:
                 file.write("<!--下载源码时间: " + time.asctime() + " -->")
                 file.write(html)
             raise
-        
+
         if not self.getOriginPic:
             # 下载图片
             t = tqdm.tqdm(total=len(re.findall(pattern, html)), dynamic_ncols=True)
@@ -89,36 +89,37 @@ class GoogleSearcher:
                 t.update(1)
             t.close()
         else:
-            r= self.session.get(pic_url)
-            l =re.findall(
+            pic_url = self.url.split("searchbyimage/upload")[0] + soup.select("title-with-lhs-icon a")[0].attrs['href']
+            r = self.session.get(pic_url)
+            l = re.findall(
                 r'"(.*?)",[0-9]+,[0-9]+', r.text)
-            pics=list()
+            pics = list()
             for i in l:
-                if i[-4:] ==".jpg" or i[-4:] ==".png" :
+                if i[-4:] == ".jpg" or i[-4:] == ".png":
                     pics.append(i)
 
-            pic_count=0
-            for n,pic in enumerate(pics):
-                retryCount=3
-                if pic_count>=30:
+            pic_count = 0
+            for n, pic in enumerate(pics):
+                retry_count = 3
+                if pic_count >= 30:
                     break
-                while(1):
+                while True:
                     try:
-                        imageText='img_none'
+                        imageText = 'img_none'
                         print(pic)
                         image = requests.get(pic)
-                        imageText=image.text
-                        f = open(os.path.join(img_dir,str(n)+pic[-4:]), 'wb')
-                        #将下载到的图片数据写入文件
+                        imageText = image.text
+                        f = open(os.path.join(img_dir, str(n) + pic[-4:]), 'wb')
+                        # 将下载到的图片数据写入文件
                         f.write(image.content)
                         f.close()
-                        pic_count+=1
+                        pic_count += 1
                         break
                     except Exception as e:
-                        retryCount-=1
+                        retry_count -= 1
                         print(repr(e))
                         print(imageText)
-                        if retryCount<=0:
+                        if retry_count <= 0:
                             print("跳过")
                             break
                         continue
@@ -151,7 +152,7 @@ class GoogleSearcher:
         except:
             pass
 
-    def simple_file_run(self, img, download_path):
+    def single_file_run(self, img, download_path):
         """对单独的一个文件进行搜索"""
         if os.path.isfile(img):  # 这里的img是一个完成的路径
             img_name = os.path.splitext(os.path.split(img)[1])[0]  # 所要上传图片的名字
@@ -165,25 +166,22 @@ class GoogleSearcher:
                 if not os.path.exists(this_download_dir):
                     os.mkdir(this_download_dir)
 
-                
-                
-                while_count=3
-                while(1):
+                while_count = 3  # 图片下载尝试次数
+                while True:
                     try:
                         html_source = self.upload_img_get_html(
                             img)  # 获取上传图片之后获取的html source
-                        
 
                         self.analyse(html_source, this_download_dir,
-                                    this_download_dir + "/" + img_name)  # 解析网页，下载图片，写入网页文本
+                                     this_download_dir + "/" + img_name)  # 解析网页，下载图片，写入网页文本
 
                         print("{}图片{}处理完成\n{}".format(Fore.GREEN, img_name, Fore.RESET))
                         break
                     except:
-                        while_count-=1
+                        while_count -= 1
                         traceback.print_exc()
                         time.sleep(1)
-                        if while_count<=0:
+                        if while_count <= 0:
                             break
                         continue
             else:
@@ -209,23 +207,22 @@ class GoogleSearcher:
 
             if i[-1]:  # 同一目录下的文件列表
                 for oswalk in os.walk(download):
-                    all_folder=oswalk[1]
-                    all_num=list()
+                    all_folder = oswalk[1]
+                    all_num = list()
                     for u in all_folder:
-                        for oswalk in u:
-                            if len(oswalk[2])==0:
-                                print("空文件夹")
+                        for oswalk in os.walk(os.path.join(download, u)):
+                            if len(oswalk[2]) == 0:
+                                print("空文件夹", oswalk[0])
                             else:
                                 all_num.append(u.split('_')[0])
                     break
                 for j in i[-1]:  # 每一个文件
-                    if(j.split('.')[0] in all_num):
-                        print(j,"pass")
+                    if j.split('.')[0] in all_num:
+                        print(j, "pass")
                         continue
                     img_path = os.path.join(current_upload_directory, j)
-                    self.simple_file_run(img_path, download)
-                    #time.sleep(10)
-
+                    self.single_file_run(img_path, download)
+                    # time.sleep(10)
 
 
 if __name__ == "__main__":
