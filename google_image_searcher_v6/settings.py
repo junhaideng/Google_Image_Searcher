@@ -14,6 +14,7 @@ SETTINGS_JSON = {
     "separate": True,  # 下载的文件和图片是否分离
     # 需要处理的图片后缀名
     "extention": [".bmp", ".jpg", ".jpeg", ".tif", ".tiff", ".jfif", ".png", ".gif", ".iff", ".ilbm"],
+    # https://shitu.paodekuaiweixinqun.com/searchbyimage/upload" -> 镜像
     "url": "https://www.google.com/searchbyimage/upload",  # 默认是 google 原像
     "getOriginPic": False
 }
