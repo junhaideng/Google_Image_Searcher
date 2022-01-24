@@ -39,12 +39,12 @@ def is_img(img_path, extention):
 
 
 def welcome():
-    print("----------------------------------------------")
-    print("-           Google Image Searcher            -")
-    print("-             designed by Edgar              -")
-    print("-    for more detail usage, you can visit    -")
-    print("-           https://git.io/Jvrbv             -")
-    print("----------------------------------------------")
+    print("-----------------------------------------------------------")
+    print("-                   Google Image Searcher                 -")
+    print("-                      designed by Edgar                  -")
+    print("-           for more detail usage, you can visit          -")
+    print("-   https://github.com/junhaideng/Google_Image_Searcher   -")
+    print("-----------------------------------------------------------")
 
 
 if __name__ == "__main__":
