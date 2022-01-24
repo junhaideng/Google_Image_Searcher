@@ -1,14 +1,10 @@
-## Google_Image_Searcher
+## Google 以图搜图
 
-`Version 6` :tada: 
-### 1. requirements
-- beautifulsoup4
-- requests
-- urllib3
+**旨在通过 Google 或者相关镜像网站达到获取现有图片的相似图片**。
 
-`版本6中直接向接口 POST 数据，速度较之前大幅度提升` :tada:
+请使用最新提交代码，见 [v6](google_image_searcher_v6)，`v6 中直接向接口 POST 数据，速度较之前大幅度提升` :tada:
 
-另外也使用Go进行了实现([点这里](https://github.com/junhaideng/go-gis))，速度更快:tada:，提供[二进制可执行文件](https://github.com/junhaideng/go-gis/releases)
+另外也使用 Go 进行了实现([点这里](https://github.com/junhaideng/go-gis))，速度更快:tada:，并且提供[二进制可执行文件](https://github.com/junhaideng/go-gis/releases)。
 <hr/>
 
 ## 旧版本
