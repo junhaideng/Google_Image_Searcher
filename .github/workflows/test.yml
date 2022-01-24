@@ -21,9 +21,10 @@ jobs:
       - name: 测试 Google 镜像
         run: |
           cd google_image_searcher_v6
-          sudo python main.py
+          python main.py
       - name: 测试 Google 
         run: | 
           cd google_image_searcher_v6
-          rm settings.json 
-          sudo python main.py
+          rm settings.json
+          rm -rf download
+          python main.py
