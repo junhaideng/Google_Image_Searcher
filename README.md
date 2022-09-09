@@ -1,4 +1,5 @@
-## Google 以图搜图
+## Google 以图搜图 
+[![test](https://github.com/junhaideng/Google_Image_Searcher/actions/workflows/test.yml/badge.svg)](https://github.com/junhaideng/Google_Image_Searcher/actions/workflows/test.yml)
 
 **旨在通过 Google 或者相关镜像网站达到获取现有图片的相似图片**。
 
