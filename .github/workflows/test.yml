@@ -22,9 +22,16 @@ jobs:
         run: |
           cd google_image_searcher_v6
           python main.py
+          for dir in `find download -maxdepth 1 -mindepth 1 -type d`; do
+              echo $dir && ls $dir
+          done
+          
       - name: 测试 Google 
         run: | 
           cd google_image_searcher_v6
           rm settings.json
           rm -rf download
           python main.py
+          for dir in `find download -maxdepth 1 -mindepth 1 -type d`; do
+              echo $dir && ls $dir
+          done
